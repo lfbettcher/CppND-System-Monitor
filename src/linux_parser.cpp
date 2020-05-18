@@ -106,27 +106,64 @@ long LinuxParser::ActiveJiffies() { return 0; }
 // TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() { return 0; }
 
-// TODO: Read and return CPU utilization
-/*
+// Read and return CPU utilization
+// extract all ten values associated with the key cpu
+// return vector of string, call in Processor
 vector<string> LinuxParser::CpuUtilization() {
   vector<string> cpuStates;
-  string line, value;
+  string line, key, value;
   std::ifstream stream(kProcDirectory + kStatFilename);
   if (stream.is_open()) {
-    std::getline(stream, line);
-    std::istringstream linestream(line);
-    while (linestream >> value) {
-      cpuStates.push_back(value);
+    while (std::getline(stream, line)) {
+      std::istringstream linestream(line);
+      linestream >> key;
+      if (key == "cpu") {
+        for (int i = 0; i < 10; i++) {
+          linestream >> value;
+          cpuStates.push_back(value);
+        }
+        return cpuStates;
+      }
     }
   }
   return cpuStates;
-} */
+}
 
 // TODO: Read and return the total number of processes
-int LinuxParser::TotalProcesses() { return 0; }
+int LinuxParser::TotalProcesses() {
+  string line, key;
+  int value = 0;
+  std::ifstream stream(kProcDirectory + kStatFilename);
+    if (stream.is_open()) {
+    while (std::getline(stream, line)) {
+      std::istringstream linestream(line);
+      while (linestream >> key >> value) {
+        if (key == "processes") {
+          return value;
+        }
+      }
+    }
+  }
+  return value;
+}
 
 // TODO: Read and return the number of running processes
-int LinuxParser::RunningProcesses() { return 0; }
+int LinuxParser::RunningProcesses() {
+  string line, key;
+  int value = 0;
+  std::ifstream stream(kProcDirectory + kStatFilename);
+    if (stream.is_open()) {
+    while (std::getline(stream, line)) {
+      std::istringstream linestream(line);
+      while (linestream >> key >> value) {
+        if (key == "procs_running") {
+          return value;
+        }
+      }
+    }
+  }
+  return value;
+}
 
 // TODO: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function

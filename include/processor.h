@@ -17,7 +17,6 @@ class Processor {
  int stealTime;
  int guestTime;
  int guestNiceTime;
-
 };
 
 #endif
