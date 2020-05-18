@@ -20,7 +20,7 @@ class Process {
   // TODO: Declare any necessary private members
  private:
   int pid_ = 0;
-  float cpuUtil_ = 0.0;
+  float cpuUtilization_ = 0.0;
 };
 
 #endif

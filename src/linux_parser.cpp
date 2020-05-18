@@ -2,9 +2,10 @@
 
 #include <dirent.h>
 #include <unistd.h>
-
 #include <string>
 #include <vector>
+
+#include <iostream>
 
 #include "process.h"
 
@@ -93,8 +94,16 @@ float LinuxParser::MemoryUtilization() {
   return value;
 }
 
-// TODO: Read and return the system uptime
-long LinuxParser::UpTime() { return 0; }
+// Read and return the system uptime
+long LinuxParser::UpTime() {
+  string line, sysUpTime;
+  std::ifstream filestream(kProcDirectory + kUptimeFilename);
+  if (filestream.is_open()) {
+    filestream >> sysUpTime;
+  }
+  std::cout << std::stol(sysUpTime) << std::endl;
+  return std::stol(sysUpTime);
+}
 
 // TODO: Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() { return 0; }
@@ -176,7 +185,7 @@ string LinuxParser::Command(int pid [[maybe_unused]]) { return string(); }
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Ram(int pid [[maybe_unused]]) { return string(); }
 
-// TODO: Read and return the user ID associated with a process
+// Read and return the user ID associated with a process
 string LinuxParser::Uid(int pid) {
   string line, key, value;
   std::ifstream stream(kProcDirectory + to_string(pid) + kStatusFilename);
@@ -193,7 +202,7 @@ string LinuxParser::Uid(int pid) {
   return "";
 }
 
-// TODO: Read and return the user associated with a process
+// Read and return the user associated with a process
 string LinuxParser::User(int pid) {
   string line, user, uid;
   std::ifstream stream(kPasswordPath);
@@ -209,9 +218,20 @@ string LinuxParser::User(int pid) {
       }
     }
   }
-  return "Unknown";
+  return "GoFish";
 }
 
-// TODO: Read and return the uptime of a process
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid [[maybe_unused]]) { return 0; }
+// Read and return the uptime of a process
+long LinuxParser::UpTime(int pid) {
+  long procUpTime = 0;
+  string line, value;
+  std::ifstream stream(kProcDirectory + to_string(pid) + kStatFilename);
+  if (stream.is_open()) {
+    // 22nd value is process uptime
+    for (int i = 0; i < 22; i++) {
+      stream >> value;
+    }
+    procUpTime = std::stol(value);
+  }
+  return procUpTime / sysconf(_SC_CLK_TCK);
+}

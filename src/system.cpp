@@ -17,18 +17,18 @@ using std::vector;
 // Return the system's CPU
 Processor& System::Cpu() { return cpu_; }
 
-// TODO: Return a container composed of the system's processes
+// Return a container composed of the system's processes
 vector<Process>& System::Processes() {
-    vector<int> pidList = LinuxParser::Pids();
+    vector<int> pids = LinuxParser::Pids();
     
-    for (unsigned int i = 0; i < pidList.size(); i++) {
-        Process process(pidList[i]);
+    processes_.clear();
+
+    for (int pid : pids) {
+        Process process(pid);
         processes_.push_back(process);
     }
     
-    // std::sort(processes_.begin(), processes_.end(), [](Process& p1, Process& p2) {
-    //     return p1 < p2 ? p1 : p2;
-    // });
+    std::sort(processes_.begin(), processes_.end());
 
     return processes_;
 }
@@ -48,5 +48,5 @@ int System::RunningProcesses() { return LinuxParser::RunningProcesses(); }
 // Return the total number of processes on the system
 int System::TotalProcesses() { return LinuxParser::TotalProcesses(); }
 
-// TODO: Return the number of seconds since the system started running
+// Return the number of seconds since the system started running
 long int System::UpTime() { return LinuxParser::UpTime(); }
