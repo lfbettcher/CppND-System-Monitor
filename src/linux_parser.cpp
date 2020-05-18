@@ -1,9 +1,12 @@
+#include "linux_parser.h"
+
 #include <dirent.h>
 #include <unistd.h>
+
 #include <string>
 #include <vector>
 
-#include "linux_parser.h"
+#include "process.h"
 
 using std::stof;
 using std::string;
@@ -82,7 +85,7 @@ float LinuxParser::MemoryUtilization() {
           memTotal = value;
         } else if (key == "MemFree:") {
           memFree = value;
-          return (float) (memTotal - memFree) / memTotal;
+          return (float)(memTotal - memFree) / memTotal;
         }
       }
     }
@@ -98,7 +101,7 @@ long LinuxParser::Jiffies() { return 0; }
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::ActiveJiffies(int pid [[maybe_unused]]) { return 0; }
 
 // TODO: Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() { return 0; }
@@ -129,12 +132,12 @@ vector<string> LinuxParser::CpuUtilization() {
   return cpuStates;
 }
 
-// TODO: Read and return the total number of processes
+// Read and return the total number of processes
 int LinuxParser::TotalProcesses() {
   string line, key;
   int value = 0;
   std::ifstream stream(kProcDirectory + kStatFilename);
-    if (stream.is_open()) {
+  if (stream.is_open()) {
     while (std::getline(stream, line)) {
       std::istringstream linestream(line);
       while (linestream >> key >> value) {
@@ -147,12 +150,12 @@ int LinuxParser::TotalProcesses() {
   return value;
 }
 
-// TODO: Read and return the number of running processes
+// Read and return the number of running processes
 int LinuxParser::RunningProcesses() {
   string line, key;
   int value = 0;
   std::ifstream stream(kProcDirectory + kStatFilename);
-    if (stream.is_open()) {
+  if (stream.is_open()) {
     while (std::getline(stream, line)) {
       std::istringstream linestream(line);
       while (linestream >> key >> value) {
@@ -167,20 +170,48 @@ int LinuxParser::RunningProcesses() {
 
 // TODO: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Command(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Command(int pid [[maybe_unused]]) { return string(); }
 
 // TODO: Read and return the memory used by a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Ram(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Ram(int pid [[maybe_unused]]) { return string(); }
 
 // TODO: Read and return the user ID associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Uid(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Uid(int pid) {
+  string line, key, value;
+  std::ifstream stream(kProcDirectory + to_string(pid) + kStatusFilename);
+  if (stream.is_open()) {
+    while (std::getline(stream, line)) {
+      std::istringstream linestream(line);
+      while (linestream >> key >> value) {
+        if (key == "Uid:") {
+          return value;
+        }
+      }
+    }
+  }
+  return "";
+}
 
 // TODO: Read and return the user associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::User(int pid) {
+  string line, user, uid;
+  std::ifstream stream(kPasswordPath);
+  if (stream.is_open()) {
+    while (std::getline(stream, line)) {
+      std::istringstream linestream(line);
+      // user:x:uid:
+      std::getline(linestream, user, ':');
+      std::getline(linestream, uid, ':');
+      std::getline(linestream, uid, ':');
+      if (uid == LinuxParser::Uid(pid)) {
+        return user;
+      }
+    }
+  }
+  return "Unknown";
+}
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::UpTime(int pid [[maybe_unused]]) { return 0; }

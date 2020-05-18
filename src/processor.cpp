@@ -21,8 +21,8 @@ float Processor::Utilization() {
         guestNiceTime = std::stoi(cpuStates[LinuxParser::CPUStates::kGuestNice_]);
     }
 
-    int idle = idleTime + ioWaitTime;
-    int nonIdle = userTime + niceTime + systemTime + irqTime + softIrqTime + stealTime;
+    long idle = idleTime + ioWaitTime;
+    long nonIdle = userTime + niceTime + systemTime + irqTime + softIrqTime + stealTime;
     return (float) nonIdle / (nonIdle + idle);
 }
 
