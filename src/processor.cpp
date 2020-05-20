@@ -1,44 +1,42 @@
 #include "processor.h"
+
+#include <string>
+#include <vector>
+
 #include "linux_parser.h"
 
-#include <vector>
-#include <string>
+using std::stoi;
 
-// TODO: Return the aggregate CPU utilization
+// Return the aggregate CPU utilization
 float Processor::Utilization() {
-    std::vector<std::string> cpuStates = LinuxParser::CpuUtilization();
-    if (cpuStates.size() == 10) {
-        userTime = std::stoi(cpuStates[LinuxParser::CPUStates::kUser_]);
-        niceTime = std::stoi(cpuStates[LinuxParser::CPUStates::kNice_]);
-        systemTime = std::stoi(cpuStates[LinuxParser::CPUStates::kSystem_]);
-        idleTime = std::stoi(cpuStates[LinuxParser::CPUStates::kIdle_]);
-        ioWaitTime = std::stoi(cpuStates[LinuxParser::CPUStates::kIOwait_]);
-        irqTime = std::stoi(cpuStates[LinuxParser::CPUStates::kIRQ_]);
-        softIrqTime = std::stoi(cpuStates[LinuxParser::CPUStates::kSoftIRQ_]);
-        stealTime = std::stoi(cpuStates[LinuxParser::CPUStates::kSteal_]);
-        guestTime = std::stoi(cpuStates[LinuxParser::CPUStates::kGuest_]);
-        guestNiceTime = std::stoi(cpuStates[LinuxParser::CPUStates::kGuestNice_]);
-    }
+  // get current values
+  std::vector<std::string> cpuStates = LinuxParser::CpuUtilization();
+  userTime_ = stoi(cpuStates[LinuxParser::CPUStates::kUser_]);
+  niceTime_ = stoi(cpuStates[LinuxParser::CPUStates::kNice_]);
+  systemTime_ = stoi(cpuStates[LinuxParser::CPUStates::kSystem_]);
+  idleTime_ = stoi(cpuStates[LinuxParser::CPUStates::kIdle_]);
+  ioWaitTime_ = stoi(cpuStates[LinuxParser::CPUStates::kIOwait_]);
+  irqTime_ = stoi(cpuStates[LinuxParser::CPUStates::kIRQ_]);
+  softIrqTime_ = stoi(cpuStates[LinuxParser::CPUStates::kSoftIRQ_]);
+  stealTime_ = stoi(cpuStates[LinuxParser::CPUStates::kSteal_]);
+  guestTime_ = stoi(cpuStates[LinuxParser::CPUStates::kGuest_]);
+  guestNiceTime_ = stoi(cpuStates[LinuxParser::CPUStates::kGuestNice_]);
 
-    long idle = idleTime + ioWaitTime;
-    long nonIdle = userTime + niceTime + systemTime + irqTime + softIrqTime + stealTime;
-    return (float) nonIdle / (nonIdle + idle);
+  // userTime and niceTime already include guestTime and guestNiceTime
+  long idle = idleTime_ + ioWaitTime_;
+  long nonIdle = userTime_ + niceTime_ + systemTime_ + irqTime_ + softIrqTime_ +
+                 stealTime_;
+  long total = nonIdle + idle;
+
+  // calculate difference
+  long totald = total - prevTotal_;
+  long nonIdled = nonIdle - prevNonIdle_;
+
+  float utilization = (float)nonIdled / totald;
+
+  // set previous values
+  this->prevNonIdle_ = nonIdle;
+  this->prevTotal_ = total;
+
+  return utilization;
 }
-
-/* TODO: use this to calculate more updated usage
-https://stackoverflow.com/questions/23367857/accurate-calculation-of-cpu-usage-given-in-percentage-in-linux
-
-PrevIdle = prev_idle + prev_iowait
-Idle = idle + iowait
-
-PrevNonIdle = prev_user + prev_nice + prev_system + prev_irq + prev_softIrq + prev_steal
-NonIdle = user + nice + system + irq + softIrq + steal
-
-PrevTotal = PrevIdle + PrevNonIdle
-Total = Idle + NonIdle
-
-totald = Total - PrevTotal
-idled = Idle - PrevIdle
-
-CPU_Utilization = (totald - idled) / totald;
-*/

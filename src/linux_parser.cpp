@@ -140,16 +140,16 @@ long LinuxParser::ActiveJiffies() {
     activeJiffies += std::stoi(jiffy);
   }
   */
-
   // if you don't include idle and iowait
   long activeJiffies = std::stoi(cpuStates[LinuxParser::CPUStates::kUser_])
                      + std::stoi(cpuStates[LinuxParser::CPUStates::kNice_])
                      + std::stoi(cpuStates[LinuxParser::CPUStates::kSystem_])
                      + std::stoi(cpuStates[LinuxParser::CPUStates::kIRQ_])
                      + std::stoi(cpuStates[LinuxParser::CPUStates::kSoftIRQ_])
-                     + std::stoi(cpuStates[LinuxParser::CPUStates::kSteal_])
+                     + std::stoi(cpuStates[LinuxParser::CPUStates::kSteal_]);
+                     /* guest is already included in user and nice?
                      + std::stoi(cpuStates[LinuxParser::CPUStates::kGuest_])
-                     + std::stoi(cpuStates[LinuxParser::CPUStates::kGuestNice_]);
+                     + std::stoi(cpuStates[LinuxParser::CPUStates::kGuestNice_]); */
 
   return activeJiffies;
 }

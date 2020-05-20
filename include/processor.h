@@ -3,20 +3,22 @@
 
 class Processor {
  public:
-  float Utilization();  // TODO: See src/processor.cpp
+  float Utilization();
 
-  // TODO: Declare any necessary private members
  private:
- int userTime;
- int niceTime;
- int systemTime;
- int idleTime;
- int ioWaitTime;
- int irqTime;
- int softIrqTime;
- int stealTime;
- int guestTime;
- int guestNiceTime;
+  int userTime_;
+  int niceTime_;
+  int systemTime_;
+  int idleTime_;
+  int ioWaitTime_;
+  int irqTime_;
+  int softIrqTime_;
+  int stealTime_;
+  int guestTime_;
+  int guestNiceTime_;
+
+  long prevNonIdle_ = 0;
+  long prevTotal_ = 0;
 };
 
 #endif
