@@ -1,5 +1,4 @@
 #include "processor.h"
-
 #include "linux_parser.h"
 
 #include <vector>
