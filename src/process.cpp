@@ -16,12 +16,11 @@ using std::vector;
 // Return this process's ID
 int Process::Pid() { return pid_; }
 
-// TODO: Return this process's CPU utilization
+// Return this process's CPU utilization
 float Process::CpuUtilization() {
-  long procTimeElapsed = LinuxParser::UpTime() - Process::UpTime();
-  float totalProcTimeSec =
+  float procCpuTimeSec =
       (float)LinuxParser::ActiveJiffies(Pid()) / sysconf(_SC_CLK_TCK);
-  cpuUtilization_ = totalProcTimeSec / procTimeElapsed;
+  cpuUtilization_ = procCpuTimeSec / Process::UpTime();
   return cpuUtilization_;
 }
 
@@ -35,9 +34,7 @@ string Process::Ram() { return LinuxParser::Ram(Pid()); }
 string Process::User() { return LinuxParser::User(Pid()); }
 
 // Return the age of this process (in seconds)
-long int Process::UpTime() {
-  return LinuxParser::UpTime() - LinuxParser::UpTime(Pid());
-}
+long Process::UpTime() { return LinuxParser::UpTime(Pid()); }
 
 // Overload the "less than" comparison operator for Process objects
 bool Process::operator<(Process const& a) const {
